@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{.Values.deployment.name}}
+  labels: {{- include "mylabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:  {{- include "mylabels" . | nindent 4 }}
+  template:
+    metadata:
+      labels: {{- include "mylabels" . | nindent 4 }}
+    spec:
+      containers:
+        - name: {{ .Values.deployment.name }}
+          image: "{{ .Values.deployment.image.app }}:{{ .Values.deployment.image.version }}"
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+        {{- if eq .Values.proxy.enabled true -}}
+        {{- include "proxy" . | nindent 8 }}
+        {{- end -}}
